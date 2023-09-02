@@ -17,11 +17,16 @@ static unsigned int vmm_major;
 // ============================================================================
 static int vmm_init(void);
 static void vmm_exit(void);
+static int vmm_open(struct inode *inode, struct file *fp);
+static int vmm_release(struct inode *inode, struct file *fp);
 static ssize_t vmm_read(struct file *fp, char __user *buf, size_t count, loff_t *f_pos);
-static ssize_t vmm_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos);
+static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, loff_t *f_pos);
 
 struct file_operations devone_fops = {
+    .open = vmm_open,
+    .release = vmm_release,
     .read = vmm_read,
+    .write = vmm_write,
 };
 
 static int vmm_init(void)
@@ -52,6 +57,7 @@ static int vmm_init(void)
     printk(KERN_DEBUG "%s driver(major %d) installed\n", "vmm", vmm_major);
     return 0;
 }
+
 static void vmm_exit(void)
 {
     dev_t dev = MKDEV(vmm_major, MINOR_BASE);
@@ -62,6 +68,18 @@ static void vmm_exit(void)
     unregister_chrdev_region(dev, MINOR_NUM);
 
     printk(KERN_DEBUG "vmm driver removed.\n");
+}
+
+static int vmm_open(struct inode *inode, struct file *fp) 
+{
+    printk(KERN_DEBUG "vmm_open called...\n");
+    return 0;
+}
+
+static int vmm_release(struct inode *inode, struct file *fp)
+{
+    printk(KERN_DEBUG "vmm_close call...\n");
+    return 0;
 }
 
 ssize_t vmm_read(struct file *fp, char __user *buf, size_t count, loff_t *f_pos)
@@ -82,6 +100,10 @@ ssize_t vmm_read(struct file *fp, char __user *buf, size_t count, loff_t *f_pos)
 
     return retval;
 }
-
+static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, loff_t *f_pos)
+{
+    printk(KERN_DEBUG "vmm_write called...\n");
+    return 0;
+}
 module_init(vmm_init);
 module_exit(vmm_exit);
