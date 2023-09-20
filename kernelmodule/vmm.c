@@ -21,12 +21,14 @@ static int vmm_open(struct inode *inode, struct file *fp);
 static int vmm_release(struct inode *inode, struct file *fp);
 static ssize_t vmm_read(struct file *fp, char __user *buf, size_t count, loff_t *f_pos);
 static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, loff_t *f_pos);
+static int vmm_mmap(struct file *fp, struct vm_area_struct *area);
 
 struct file_operations devone_fops = {
     .open = vmm_open,
     .release = vmm_release,
     .read = vmm_read,
     .write = vmm_write,
+    .mmap = vmm_mmap,
 };
 
 static int vmm_init(void)
@@ -105,5 +107,12 @@ static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, 
     printk(KERN_DEBUG "vmm_write called...\n");
     return 0;
 }
+
+static int vmm_mmap(struct file *fp, struct vm_area_struct *area)
+{
+    printk(KERN_DEBUG "vmm_mmap called...\n");
+    return 0;
+}
+
 module_init(vmm_init);
 module_exit(vmm_exit);
