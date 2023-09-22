@@ -3,14 +3,24 @@
 #include <linux/cdev.h>
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h> // copy_from_user, copy_to_user
+#include <linux/mm.h>
+
 MODULE_LICENSE("Dual BSD/GPL");
 
 #define DRIVER_NAME "vmm"
+
+#define VMM_PAGE_SIZE   4096
+
+typedef struct vmm_mmap_info {
+    char data[VMM_PAGE_SIZE * 32];
+    int ref;
+} VMM_MMAP_INFO;
 
 static const unsigned int MINOR_BASE = 0;
 static const unsigned int MINOR_NUM  = 2;
 static struct cdev vmm_cdev;
 static unsigned int vmm_major;
+static unsigned char vmm_page[4096];
 
 // ============================================================================
 // function prototype
@@ -23,12 +33,23 @@ static ssize_t vmm_read(struct file *fp, char __user *buf, size_t count, loff_t 
 static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, loff_t *f_pos);
 static int vmm_mmap(struct file *fp, struct vm_area_struct *vma);
 
+static void vm_open(struct vm_area_struct *vma);
+static void vm_close(struct vm_area_struct *vma);
+static vm_fault_t vm_fault(struct vm_fault *vmf);
+
 struct file_operations devone_fops = {
     .open = vmm_open,
     .release = vmm_release,
     .read = vmm_read,
     .write = vmm_write,
     .mmap = vmm_mmap,
+};
+
+static struct vm_operations_struct vm_ops =
+{
+    .close = vm_close,
+    .fault = vm_fault,
+    .open = vm_open,
 };
 
 static int vmm_init(void)
@@ -108,9 +129,54 @@ static ssize_t vmm_write(struct file *fp, const char __user *buf, size_t count, 
     return 0;
 }
 
+
 static int vmm_mmap(struct file *fp, struct vm_area_struct *vma)
 {
     printk(KERN_DEBUG "vmm_mmap called...\n");
+    vma->vm_ops = &vm_ops;
+    vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+    vma->vm_private_data = fp->private_data;
+    vm_open(vma);
+    return 0;
+}
+
+static void vm_open(struct vm_area_struct *vma)
+{
+    VMM_MMAP_INFO *vmm_mmap_info;
+    printk(KERN_DEBUG "vm_open called In...\n");
+    vmm_mmap_info = (VMM_MMAP_INFO *)vma->vm_private_data;
+    vmm_mmap_info->ref++;
+    printk(KERN_DEBUG "vm_open called Out...\n");
+}
+
+static void vm_close(struct vm_area_struct *vma)
+{
+    VMM_MMAP_INFO *vmm_mmap_info;
+    printk(KERN_DEBUG "vm_close called...\n");
+    vmm_mmap_info = (VMM_MMAP_INFO *)vma->vm_private_data;
+    vmm_mmap_info->ref--;
+}
+
+static vm_fault_t vm_fault(struct vm_fault *vmf)
+{
+    struct page *page;
+    VMM_MMAP_INFO *vmm_mmap_info;
+    unsigned long address = (unsigned long)vmf->address;
+
+    printk(KERN_DEBUG "vm_fault called...\n");
+
+    if (address > vmf->vma->vm_end) {
+        return VM_FAULT_SIGBUS;
+    }
+    vmm_mmap_info = (VMM_MMAP_INFO *)vmf->vma->vm_private_data;
+    if (!vmm_mmap_info->data) {
+        return VM_FAULT_SIGBUS;
+    }
+
+    page = virt_to_page(vmm_mmap_info->data);
+
+    get_page(page);
+    vmf->page = page;
     return 0;
 }
 
