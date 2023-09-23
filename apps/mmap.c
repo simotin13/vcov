@@ -6,10 +6,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define DEVNAME	"/home/miyazaki/vcov/kernelmodule/vmm"
+#define DEVNAME	"/dev/vmm"
 int main(int argc, char **argv)
 {
-    int *address;
+    char *address;
     int fd;
     fd = open(DEVNAME, O_RDWR);
     if (fd<=0) {
@@ -23,7 +23,10 @@ int main(int argc, char **argv)
         close(fd);
         return -1;
     }
-    fprintf(stdout, "success!\n");
+    printf("address:[%p]\n", address);
+    printf("[%s]\n",address);
+
+    fprintf(stdout, "finish...\n");
     close(fd);
     return 0;
 }

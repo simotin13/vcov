@@ -12,7 +12,7 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define VMM_PAGE_SIZE   4096
 
 typedef struct vmm_mmap_info {
-    char data[VMM_PAGE_SIZE * 32];
+    char *data;
     int ref;
 } VMM_MMAP_INFO;
 
@@ -20,7 +20,6 @@ static const unsigned int MINOR_BASE = 0;
 static const unsigned int MINOR_NUM  = 2;
 static struct cdev vmm_cdev;
 static unsigned int vmm_major;
-static unsigned char vmm_page[4096];
 
 // ============================================================================
 // function prototype
@@ -95,7 +94,15 @@ static void vmm_exit(void)
 
 static int vmm_open(struct inode *inode, struct file *fp) 
 {
+    VMM_MMAP_INFO *vmm_mmap_info;
     printk(KERN_DEBUG "vmm_open called...\n");
+
+    vmm_mmap_info = kmalloc(sizeof(VMM_MMAP_INFO), GFP_KERNEL);
+    vmm_mmap_info->data = (char *)get_zeroed_page(GFP_KERNEL);
+
+    memcpy(vmm_mmap_info->data, "hello from kernel this is file: ", 32);
+    fp->private_data = vmm_mmap_info;
+
     return 0;
 }
 
