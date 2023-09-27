@@ -22,11 +22,11 @@ _vmxoff:
     jmp _vmx_success
 
 _vmx_failure:
-    mov rax, 0x00
+    mov rax, 0xFF
     ret
 
 _vmx_success:
-    mov rax, 0xFF
+    mov rax, 0x00
     ret
 
 ; =============================================================================
