@@ -1,9 +1,9 @@
 all:cpu.o
-	gcc test.c cpu.o
+	gcc -g test.c cpu.o
 
 cpu.o:
 	nasm -f elf64 cpu.asm	
 
 clean:
-	rm *.o a.out
+	rm -f *.o a.out
 

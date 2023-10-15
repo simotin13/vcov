@@ -12,7 +12,8 @@ _cpuid_id:
     mov rax, QWORD [rbp-0x08]
     mov DWORD [rax], ebx
     add QWORD rax,0x04
-    mov DWORD [rax], ecx
-    add QWORD rax,0x04
     mov DWORD [rax], edx
+    add QWORD rax,0x04
+    mov DWORD [rax], ecx
+    pop rbp
     ret
