@@ -1,6 +1,7 @@
 section .text
 
 global _cpuid_id
+global _is_support_vmx
 
 ; CPUID
 _cpuid_id:
@@ -16,4 +17,15 @@ _cpuid_id:
     add QWORD rax,0x04
     mov DWORD [rax], ecx
     pop rbp
+    ret
+
+_is_support_vmx:
+    mov eax, 0x01
+    cpuid
+    bt ecx, 0x05
+    mov eax, 0x00
+    jc vmx_support
+    ret
+vmx_support:
+    mov eax, 0x01
     ret

@@ -4,6 +4,6 @@
 // ============================================================================
 // function prototype
 // ============================================================================
-extern int _cpuid_id(char *id);
-
+extern void _cpuid_id(char *id);
+extern int _is_support_vmx(void);
 #endif	// _CPU_H_
