@@ -54,11 +54,13 @@ _enable_vmxe:
     mov rax, cr4
     and rax, 0x2000
     mov cr4, rax
+    ret
 
 _disable_vmxe:
     mov rax, cr4
     and rax, 0xFFFFDFFF
     mov cr4, rax
+    ret
 
 _read_msr:
     push rcx
