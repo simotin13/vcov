@@ -10,5 +10,8 @@ int main(int argc, char **argv)
     printf("%s\n", buf);
     int vmx = _is_support_vmx();
     printf("%d\n", vmx);
+
+    int cr4 = _enable_vmxe();
+    printf("cr4:%x\n", cr4);
     return 0;
 }

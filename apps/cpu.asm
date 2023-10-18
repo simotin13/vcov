@@ -2,6 +2,7 @@ section .text
 
 global _cpuid_id
 global _is_support_vmx
+global _enable_vmxe
 
 ; CPUID
 _cpuid_id:

@@ -260,6 +260,14 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
         vmmCtrl.val = val;
         ret = raw_copy_to_user((void __user *)arg, &vmmCtrl, sizeof(VmmCtrl));
         break;
+    case VMM_ENABLE_VMXE:
+        _enable_vmxe();
+        ret = 0;
+        break;
+    case VMM_DISABLE_VMXE:
+        _disable_vmxe();
+        ret = 0;
+        break;
     default:
         printk(KERN_DEBUG "Unknown cmd:[0x%X] called.\n", cmd);
         break;

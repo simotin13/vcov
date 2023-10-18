@@ -2,6 +2,8 @@ section .text
 
 global _vmxon
 global _vmxoff
+global _enable_vmxe
+global _disable_vmxe
 global _read_cr0
 global _read_cr4
 global _write_cr4
@@ -47,6 +49,16 @@ _write_cr0:
 _write_cr4:
     mov cr4, rdi
     ret
+
+_enable_vmxe:
+    mov rax, cr4
+    and rax, 0x2000
+    mov cr4, rax
+
+_disable_vmxe:
+    mov rax, cr4
+    and rax, 0xFFFFDFFF
+    mov cr4, rax
 
 _read_msr:
     push rcx

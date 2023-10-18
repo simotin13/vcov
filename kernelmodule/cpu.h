@@ -6,6 +6,8 @@
 // ============================================================================
 extern int _vmxon(void);
 extern int _vmxoff(void);
+extern void _enable_vmxe(void);
+extern void _disable_vmxe(void);
 
 extern unsigned long _read_cr0(void);
 extern unsigned long _read_cr4(void);
