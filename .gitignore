@@ -1,0 +1,9 @@
+a.out
+*.mod
+*.d
+*.o
+*.ko
+*.cmd
+Module.symvers
+*.order
+kernelmodule/vmm.mod.c
