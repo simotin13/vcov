@@ -1,19 +1,18 @@
-#include <iostream>
-
+#include <stdio.h>
 #include <stdlib.h>
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#define VMM_DEV_FILE_PATH           "/dev/vmm"
 int main(int argc, char **argv)
 {
-    if (argc < 3) {
-        printf("Usage vcov <target_module>");
-        return 1;
+    int fd = open("/dev/vmm", O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "%s open failed!\n", VMM_DEV_FILE_PATH);
+        return -1;
     }
 
-    std::string cmd = "./create_dev_file " + argv[1]
-    int ret = system(cmd.c_str());
-    if (ret != 0) {
-        fprintf(stderr, "create dev file failed\n");
-        return 1;
-    }
+    close(fd);
     return 0;
 }
