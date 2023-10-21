@@ -24,7 +24,7 @@ typedef struct _VmmCtrl{
 #define VMM_DISABLE_VMXE    _IO(IOC_MAGIC, 0x0201)
 
 // msr vmx related addrs
-#define IA32_FEATURE_CONTROL                        (58)
+#define MSR_IA32_FEATURE_CONTROL                    (58)
 #define MSR_REG_ADDR_IA32_VMX_BASIC                 (1152)
 #define MSR_REG_ADDR_IA32_VMX_PINBASED_CTLS         (1153)
 #define MSR_REG_ADDR_IA32_VMX_PROCBASED_CTLS        (1154)
@@ -38,9 +38,7 @@ typedef struct _VmmCtrl{
 #define MSR_REG_ADDR_IA32_VMX_VMCS_ENUM             (1162)
 #define MSR_REG_ADDR_IA32_VMX_VMCS_PROCBASED_CTLS2  (1163)
 
-
 // msr
 #define MSR_MASK_LOCK_IA32_FEATURE_CONTROL          (0x01)
-#define MSR_MASK_ENABLE_VMX_OUTSIDE_SMX             (0x04)
-
+#define MSR_MASK_FEATURE_CONTROL_VMX_EN             (0x04)
 #endif  // _KERNELMOD_H_

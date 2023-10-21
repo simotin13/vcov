@@ -22,6 +22,7 @@ static const unsigned int MINOR_BASE = 0;
 static const unsigned int MINOR_NUM  = 2;
 static struct cdev vmm_cdev;
 static unsigned int vmm_major;
+static uint8_t vmxon_region[VMM_PAGE_SIZE];
 
 // ============================================================================
 // function prototype
@@ -38,6 +39,9 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg);
 static void vm_open(struct vm_area_struct *vma);
 static void vm_close(struct vm_area_struct *vma);
 static vm_fault_t vm_fault(struct vm_fault *vmf);
+
+static int enable_vmx(void)
+static uint32_t read_vmx_revision(void);
 
 struct file_operations devone_fops = {
     .open = vmm_open,
@@ -262,18 +266,12 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
         break;
     case VMM_VMXOFF:
     {
-        val = _vmxoff();
-        ret = raw_copy_to_user((void __user *)arg, &vmmCtrl, sizeof(VmmCtrl));
-        if (ret != 0) {
-            ret = -EFAULT;
-        }
+        ret = _vmxoff();
     }
     break;
     case VMM_VMXON:
     {
-        val = _vmxon();
-        vmmCtrl.val = val;
-        ret = raw_copy_to_user((void __user *)arg, &vmmCtrl, sizeof(VmmCtrl));
+        ret = _vmxon();
     }
     break;
     case VMM_ENABLE_VMXE:
@@ -295,6 +293,42 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 
     return ret;
 }
+
+static int enable_vmx(void)
+{
+    int ret;
+    uint64_t wVal;
+    uint64_t reg = _read_msr(MSR_IA32_FEATURE_CONTROL);
+    printk(KERN_DEBUG, "check_vmx feature_control:[%x]\n", reg);
+    if ((reg & MSR_MASK_LOCK_IA32_FEATURE_CONTROL) == 1 &&
+        (reg & MSR_MASK_FEATURE_CONTROL_VMX_EN) == 0)
+        {
+            printk(KERN_DEBUG "check failed...\n");
+        }
+        return -1;
+    }
+
+    wVal = reg | MSR_MASK_LOCK_IA32_FEATURE_CONTROL | MSR_MASK_FEATURE_CONTROL_VMX_EN;
+    wrmsr(MSR_IA32_FEATURE_CONTROL, wVal);
+
+    load_cr4(rcr4() | CR4_VMXE);
+
+    uint32_t vmx_rev = read_vmx_revision();
+    *(uint32_t *)vmxon_region = vmx_rev
+    ret = vmxon(vmxon_region);
+    if (ret != 0)
+    {
+        return -1;
+    }
+    return 0;
+}
+
+static uint32_t read_vmx_revision(void)
+{
+    uint64_t reg = rdmsr(MSR_VMX_BASIC);
+	return (reg & 0xffffffff);
+}
+
 
 module_init(vmm_init);
 module_exit(vmm_exit);
