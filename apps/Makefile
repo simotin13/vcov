@@ -1,5 +1,5 @@
-all:cpu.o
-	gcc -g main.c cpu.o
+all: cpu.o
+	g++ -g main.cpp cpu.o
 
 cpu.o:
 	nasm -f elf64 cpu.asm	
