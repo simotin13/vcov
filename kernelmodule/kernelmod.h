@@ -17,8 +17,6 @@ typedef struct _VmmCtrl{
 #define VMM_WRITE_CR0       _IOW(IOC_MAGIC, 0x10, VmmCtrl)
 #define VMM_WRITE_CR4       _IOW(IOC_MAGIC, 0x14, VmmCtrl)
 #define VMM_WRITE_MSR       _IOW(IOC_MAGIC, 0x15, VmmCtrl)
-#define VMM_VMXOFF          _IOW(IOC_MAGIC, 0x0100, VmmCtrl)
-#define VMM_VMXON           _IOW(IOC_MAGIC, 0x0101, VmmCtrl)
 
 #define VMM_ENABLE_VMXE     _IO(IOC_MAGIC, 0x0200)
 #define VMM_DISABLE_VMXE    _IO(IOC_MAGIC, 0x0201)
