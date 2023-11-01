@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     memset(buf, 0, 16);
     _cpuid_id(buf);
     std::string cpuid(buf);
-    std::cout << cpuid << std::endl;
+    std::cout << "cpuid:" << cpuid << std::endl;
     if (cpuid != INTEL_CPU_ID)
     {
         std::cerr << StringHelper::strprintf("cpu is not intel, cpuid:[%s]", cpuid) << std::endl;
@@ -45,9 +45,10 @@ int main(int argc, char **argv)
         close(fd);
         exit(1);
     }
+    std::cout << StringHelper::strprintf("VT-x is supported, ret:[%d]", ret) << std::endl;
 
-    ioctl(fd, VMM_ENABLE_VMXE);
-    ioctl(fd, VMM_VMXON);
+    ret = ioctl(fd, VMM_ENABLE_VMXE);
+    std::cout << StringHelper::strprintf("ioctl VMM_ENABLE_VMXE ret:[%d]", ret) << std::endl;
 
     close(fd);
     exit(0);
