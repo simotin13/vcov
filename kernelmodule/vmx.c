@@ -2,23 +2,29 @@
 #include <linux/types.h>
 #include <linux/mm.h>
 
-struct vmcs {
+typedef struct vmcs
+{
 	uint32_t revisionId;
 	uint32_t abort;
 	uint32_t *data;
-};
+} VMCS;
 
-static struct vmcs *alloc_vmcs_region(void)
+int init_vmx(void)
 {
-	struct vmcs *vmcs;
+    VMCS *vmcs;
 	struct page *page;
+
+    printk(KERN_DEBUG "init_vmx in...\n");
 
 	page = alloc_pages(GFP_KERNEL, 0);
 	if (!page) {
-		return NULL;
+		printk(KERN_ERR "Failed to alloc_pages\n");
+		return -1;
 	}
 
 	vmcs = page_address(page);
 	memset(vmcs, 0, 4096);
-	return vmcs;
+
+    printk(KERN_DEBUG "init_vmx out...\n");
+	return 0;
 }
