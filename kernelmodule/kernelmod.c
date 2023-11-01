@@ -266,7 +266,9 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
         break;
     case VMM_ENABLE_VMXE:
     {
+        printk(KERN_DEBUG "VMM_ENABLE_VMXE start...\n");
         _enable_vmxe();
+        printk(KERN_DEBUG "VMM_ENABLE_VMXE end...\n");
         ret = 0;
     }
     break;
