@@ -52,7 +52,7 @@ _write_cr4:
 
 _enable_vmxe:
     mov rax, cr4
-    and rax, 0x2000
+    or rax, 0x2000
     mov cr4, rax
     ret
 
