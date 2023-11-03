@@ -18,8 +18,9 @@ typedef struct _VmmCtrl{
 #define VMM_WRITE_CR4       _IOW(IOC_MAGIC, 0x14, VmmCtrl)
 #define VMM_WRITE_MSR       _IOW(IOC_MAGIC, 0x15, VmmCtrl)
 
-#define VMM_ENABLE_VMXE     _IO(IOC_MAGIC, 0x0200)
-#define VMM_DISABLE_VMXE    _IO(IOC_MAGIC, 0x0201)
+#define VMM_INIT_VMX        _IO(IOC_MAGIC, 0x0200)
+#define VMM_ENABLE_VMXE     _IO(IOC_MAGIC, 0x0201)
+#define VMM_DISABLE_VMXE    _IO(IOC_MAGIC, 0x0202)
 
 // msr vmx related addrs
 #define MSR_IA32_FEATURE_CONTROL                    (58)

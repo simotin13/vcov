@@ -6,6 +6,7 @@
 #include <linux/mm.h>
 #include "cpu.h"
 #include "kernelmod.h"
+#include "vmx.h"
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -263,7 +264,14 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
             ret = -EFAULT;
         }
     }
-        break;
+    break;
+    case VMM_INIT_VMX:
+    {
+        printk(KERN_DEBUG "VMM_ENABLE_VMXE start...\n");
+        init_vmx();
+        printk(KERN_DEBUG "VMM_ENABLE_VMXE end...\n");
+        ret = 0;
+    }
     case VMM_ENABLE_VMXE:
     {
         printk(KERN_DEBUG "VMM_ENABLE_VMXE start...\n");
