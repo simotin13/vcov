@@ -38,31 +38,6 @@ static int zzzzzz(u64 address)
 	return error;
 }
 
-static struct vmcs *alloc_vmcs_region(int cpu)
-{
-	struct vmcs *vmcs;
-	struct page *page;
-	uint32_t vmx_msr_low, vmx_msr_high;
-	size_t vmcs_size;
-
-	printk(KERN_DEBUG "vmm: alloc_vmcs_region called\n");
-
-	int node = cpu_to_node(cpu);
-
-	rdmsr(MSR_IA32_VMX_BASIC, vmx_msr_low, vmx_msr_high);
-	printk(KERN_DEBUG "vmm: vmcs_size:[%x]\n", vmcs_size);
-
-	page = __alloc_pages_node(node, GFP_KERNEL, 0);
-	if (!page) {
-		return NULL;
-	}
-
-	vmcs = page_address(page);
-	memset(vmcs, 0, VMX_PAGE_SIZE);
-
-	return vmcs;
-}
-
 static void vmx_enable(void)
 {
 	int r;
@@ -98,7 +73,7 @@ static void vmx_enable(void)
 
 	printk("pa_vmx: %p %08lx\n", vmxon_region, (uintptr_t)pa_vmx);
 
-	r = zzzzzz(pa_vmx);
+	r = _vmxon(pa_vmx);
 	if (r) {
 		printk(KERN_ERR "vmm: failed to vmxon [%d]\n", r);
 	}
@@ -108,17 +83,6 @@ static void vmx_enable(void)
 
 int init_vmx(void)
 {
-    int cpu = raw_smp_processor_id();
-
-	vmxon_region = alloc_vmcs_region(cpu);
-	if(!vmxon_region)
-	{
-		return -ENOMEM;
-	}
-
-    vmx_enable();
-    return 0;
-#if 0
     struct page *page;
     u32 vmx_msr_low, vmx_msr_high;
     int cpu;
@@ -176,19 +140,4 @@ int init_vmx(void)
 
     printk(KERN_DEBUG "init_vmx out...\n");
     return 0;
-#endif
-#if 0
-    vmxon_region = page_address(page);
-    memset(vmxon_region, 0, VMX_PAGE_SIZE);
-    vmxon_region->revision_id = vmx_msr_low;
-
-    page = __alloc_pages_node(node, GFP_KERNEL, 0);
-    if (!page) {
-        printk(KERN_ERR "Failed to alloc_pages_node\n");
-        return -1;
-    }
-    vmcs_region = page_address(page);
-    memset(vmcs_region, 0, VMX_PAGE_SIZE);
-    vmcs_region->revision_id = vmx_msr_low;
-#endif
 }
