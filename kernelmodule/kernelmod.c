@@ -4,6 +4,7 @@
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h> // copy_from_user, copy_to_user
 #include <linux/mm.h>
+#include <linux/slab.h>
 #include "cpu.h"
 #include "kernelmod.h"
 #include "vmx.h"
