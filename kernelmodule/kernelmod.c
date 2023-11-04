@@ -267,11 +267,12 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
     break;
     case VMM_INIT_VMX:
     {
-        printk(KERN_DEBUG "VMM_ENABLE_VMXE start...\n");
+        printk(KERN_DEBUG "VMM_INIT_VMX start...\n");
         init_vmx();
-        printk(KERN_DEBUG "VMM_ENABLE_VMXE end...\n");
+        printk(KERN_DEBUG "VMM_INIT_VMX end...\n");
         ret = 0;
     }
+    break;
     case VMM_ENABLE_VMXE:
     {
         printk(KERN_DEBUG "VMM_ENABLE_VMXE start...\n");
