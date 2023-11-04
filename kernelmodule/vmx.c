@@ -27,7 +27,7 @@ static void write_cr4(u64 cr4)
 	asm volatile("movq %0, %%cr4" : : "r"(cr4));
 }
 
-static int zzzzzz(u64 address)
+static int vmxon(u64 address)
 {
 	u8 error;
 	asm volatile("vmxon %1; setna %0"
@@ -38,47 +38,32 @@ static int zzzzzz(u64 address)
 	return error;
 }
 
-static void vmx_enable(void)
+static int vmxoff(void)
 {
-	int r;
-
-	u64 msr_vmx_basic;
-	u64 pa_vmx;
-	u64 cr0, cr4, msr_tmp;
-
-    int cpu = raw_smp_processor_id();
-
-	printk(KERN_DEBUG "vmm: vmx_enable called\n");
-
-    rdmsrl(MSR_IA32_VMX_BASIC, msr_vmx_basic);
-
-	vmxon_region->revision_id = (u32)msr_vmx_basic;
-	printk(KERN_DEBUG "revision_id:[%x]\n", vmxon_region->revision_id);
-
-	cr0 = read_cr0();
-	rdmsrl(MSR_IA32_VMX_CR0_FIXED1, msr_tmp);
-	cr0 &= msr_tmp;
-	rdmsrl(MSR_IA32_VMX_CR0_FIXED0, msr_tmp);
-	cr0 |= msr_tmp;
-	write_cr0(cr0);
-
-	cr4 = read_cr4();
-	rdmsrl(MSR_IA32_VMX_CR4_FIXED1, msr_tmp);
-	cr4 &= msr_tmp;
-	rdmsrl(MSR_IA32_VMX_CR4_FIXED0, msr_tmp);
-	cr4 |= msr_tmp;
-	write_cr4(cr4);
-
-	pa_vmx = __pa(vmxon_region);
-
-	printk("pa_vmx: %p %08lx\n", vmxon_region, (uintptr_t)pa_vmx);
-
-	r = _vmxon(pa_vmx);
-	if (r) {
-		printk(KERN_ERR "vmm: failed to vmxon [%d]\n", r);
+	u8 error;
+	asm volatile("vmxoff; setna %0" : "=q"(error));
+	if (error) {
+		printk(KERN_ERR "vmm: failed to vmxoff\n");
+		return error;
 	}
 
-	return;
+	return 0;
+}
+
+static int vmclear(u64 address)
+{
+	u8 error;
+	asm volatile("vmclear %1; setna %0" : "=qm"(error) : "m"(address));
+
+	return error;
+}
+
+static int vmptrld(u64 address)
+{
+	u8 error;
+	asm volatile("vmptrld %1; setna %0" : "=qm"(error) : "m"(address));
+
+	return error;
 }
 
 int init_vmx(void)
@@ -111,6 +96,40 @@ int init_vmx(void)
     memset(vmxon_region, 0, VMX_PAGE_SIZE);
     vmxon_region->revision_id = vmx_msr_low;
 
+    // vmxon
+    pa_vmx = __pa(vmxon_region);
+    printk(KERN_DEBUG "vmxon, vmxon_region: %p, pa_vmx:%08lx\n", vmxon_region, (uintptr_t)pa_vmx);
+
+	// TODO _vmxon だと page faultになることがある
+	// ret = _vmxon(pa_vmx);
+	ret = vmxon(pa_vmx);
+    if (ret)
+    {
+        printk(KERN_ERR "vmxon failed...\n");
+        return -1;
+    }
+
+    page = __alloc_pages_node(node, GFP_KERNEL, 0);
+    if (!page) {
+        printk(KERN_ERR "Failed to alloc_pages_node\n");
+        return -1;
+    }
+
+    vmcs_region = page_address(page);
+    memset(vmcs_region, 0, VMX_PAGE_SIZE);
+    vmcs_region->revision_id = vmx_msr_low;
+    pa_vmx = __pa(vmcs_region);
+    printk(KERN_DEBUG "vmptrld, vmcs_region: %p, pa_vmx:%08lx\n", vmcs_region, (uintptr_t)pa_vmx);
+
+	ret = vmptrld(pa_vmx);
+    if (ret)
+    {
+        printk(KERN_DEBUG "vmptrld failed...\n");
+        return -1;
+    }
+
+	// TODO 要確認
+#if 0
 	cr0 = read_cr0();
 	rdmsrl(MSR_IA32_VMX_CR0_FIXED1, msr_tmp);
 	cr0 &= msr_tmp;
@@ -124,19 +143,7 @@ int init_vmx(void)
 	rdmsrl(MSR_IA32_VMX_CR4_FIXED0, msr_tmp);
 	cr4 |= msr_tmp;
 	write_cr4(cr4);
-
-    // vmxon
-    pa_vmx = __pa(vmxon_region);
-
-    printk("pa_vmx: %p %08lx\n", vmxon_region, (uintptr_t)pa_vmx);
-
-    printk(KERN_DEBUG "before vmxon...\n");
-    ret = _vmxon(pa_vmx);
-    if (ret)
-    {
-        printk(KERN_DEBUG "vmxon failed...\n");
-        return -1;
-    }
+#endif
 
     printk(KERN_DEBUG "init_vmx out...\n");
     return 0;

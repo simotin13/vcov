@@ -41,9 +41,6 @@ static void vm_open(struct vm_area_struct *vma);
 static void vm_close(struct vm_area_struct *vma);
 static vm_fault_t vm_fault(struct vm_fault *vmf);
 
-static int enable_vmx(void);
-static uint32_t read_vmx_revision(void);
-
 struct file_operations devone_fops = {
     .open = vmm_open,
     .release = vmm_release,
@@ -294,44 +291,6 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 
     return ret;
 }
-
-static int enable_vmx(void)
-{
-    int ret;
-    uint64_t wVal;
-    uint64_t reg;
-    uint32_t vmx_rev;
-    reg = _read_msr(MSR_IA32_FEATURE_CONTROL);
-    printk(KERN_DEBUG "msr FEATURE_CONTROL:[0x%llX]\n", reg);
-
-    if ((reg & MSR_MASK_LOCK_IA32_FEATURE_CONTROL) == 1 &&
-        (reg & MSR_MASK_FEATURE_CONTROL_VMX_EN) == 0)
-    {
-        printk(KERN_DEBUG "check failed...\n");
-        return -1;
-    }
-#if 1
-    wVal = reg | (uint64_t)MSR_MASK_LOCK_IA32_FEATURE_CONTROL | (uint64_t)MSR_MASK_FEATURE_CONTROL_VMX_EN;
-    _write_msr(MSR_IA32_FEATURE_CONTROL, wVal);
-    //load_cr4(rcr4() | CR4_VMXE);
-
-    vmx_rev = read_vmx_revision();
-    *(uint32_t *)vmxon_region = vmx_rev;
-    ret = _vmxon(vmxon_region);
-    if (ret != 0)
-    {
-        return -1;
-    }
-#endif
-    return 0;
-}
-
-static uint32_t read_vmx_revision(void)
-{
-    uint64_t reg = _read_msr(MSR_REG_ADDR_IA32_VMX_BASIC);
-	return (reg & 0xffffffff);
-}
-
 
 module_init(vmm_init);
 module_exit(vmm_exit);

@@ -2,6 +2,7 @@ section .text
 
 global _vmxon
 global _vmxoff
+global _vmptrld
 global _enable_vmxe
 global _disable_vmxe
 global _read_cr0
@@ -20,6 +21,11 @@ _vmxon:
 
 _vmxoff:
     vmxoff
+    jbe _vmx_failure
+    jmp _vmx_success
+
+_vmptrld:
+    vmptrld [rdi]
     jbe _vmx_failure
     jmp _vmx_success
 
