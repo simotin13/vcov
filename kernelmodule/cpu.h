@@ -4,7 +4,7 @@
 // ============================================================================
 // extern functions
 // ============================================================================
-extern int _vmxon(void *vmxon_region);
+extern int _vmxon(uint64_t phy_addr);
 extern int _vmxoff(void);
 extern void _enable_vmxe(void);
 extern void _disable_vmxe(void);
