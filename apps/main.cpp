@@ -47,11 +47,15 @@ int main(int argc, char **argv)
     }
     std::cout << StringHelper::strprintf("VT-x is supported, ret:[%d]", ret) << std::endl;
 
-    ret = ioctl(fd, VMM_ENABLE_VMXE);
-    std::cout << StringHelper::strprintf("ioctl VMM_ENABLE_VMXE ret:[%d]", ret) << std::endl;
-
     ret = ioctl(fd, VMM_INIT_VMX);
     std::cout << StringHelper::strprintf("ioctl VMM_INIT_VMX ret:[%d]", ret) << std::endl;
+    if (ret < 0)
+    {
+        exit(1);
+    }
+
+    ret = ioctl(fd, VMM_FINALIZE_VMX);
+    std::cout << StringHelper::strprintf("ioctl VMM_FINALIZE_VMX ret:[%d]", ret) << std::endl;
     if (ret < 0)
     {
         exit(1);
