@@ -3,6 +3,8 @@ section .text
 global _vmxon
 global _vmxoff
 global _vmptrld
+global _vmwrite
+global _vmread
 global _enable_vmxe
 global _disable_vmxe
 global _read_cr0
@@ -14,6 +16,16 @@ global _read_msr_low
 global _read_msr_high
 global _write_msr
 
+global _get_reg_rax
+global _get_reg_rbx
+global _get_reg_cs
+global _get_reg_ds
+global _get_reg_es
+global _get_reg_ss
+global _get_reg_fs
+global _get_reg_gs
+global _get_reg_tr
+
 _vmxon:
     vmxon [rdi]
     jbe _vmx_failure
@@ -23,6 +35,15 @@ _vmxoff:
     vmxoff
     jbe _vmx_failure
     jmp _vmx_success
+
+_vmwrite:
+    vmwrite rdi, rsi
+    jbe _vmx_failure
+    jmp _vmx_success
+
+_vmread:
+    vmread rax, rdi
+    ret
 
 _vmptrld:
     vmptrld [rdi]
@@ -105,4 +126,35 @@ _write_msr:
     and rax, rbx
     wrmsr
     pop rcx
+    ret
+
+_get_reg_rax:
+    ret
+
+_get_reg_rbx:
+    mov rax, rbx
+    ret
+
+_get_reg_cs:
+    mov rax, cs
+    ret
+
+_get_reg_ds:
+    mov rax, ds
+    ret
+
+_get_reg_es:
+    mov rax, ds
+    ret
+
+_get_reg_ss:
+    mov rax, ss
+    ret
+
+_get_reg_fs:
+    mov rax, ss
+    ret
+
+_get_reg_gs:
+    mov rax, gs
     ret

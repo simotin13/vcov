@@ -8,6 +8,17 @@ extern int _vmxon(uint64_t phy_addr);
 extern int _vmxoff(void);
 extern void _enable_vmxe(void);
 extern void _disable_vmxe(void);
+extern int _vmwrite(uint64_t selector, uint64_t value);
+extern uint64_t _vmread(uint64_t selector);
+
+extern uint64_t _get_reg_rax(void);
+extern uint64_t _get_reg_rbx(void);
+extern uint64_t _get_reg_cs(void);
+extern uint64_t _get_reg_ds(void);
+extern uint64_t _get_reg_es(void);
+extern uint64_t _get_reg_ss(void);
+extern uint64_t _get_reg_fs(void);
+extern uint64_t _get_reg_gs(void);
 
 extern unsigned long _read_cr0(void);
 extern unsigned long _read_cr4(void);

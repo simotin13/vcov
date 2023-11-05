@@ -24,7 +24,6 @@ static const unsigned int MINOR_BASE = 0;
 static const unsigned int MINOR_NUM  = 2;
 static struct cdev vmm_cdev;
 static unsigned int vmm_major;
-static uint8_t vmxon_region[VMM_PAGE_SIZE];
 
 // ============================================================================
 // function prototype
@@ -271,6 +270,7 @@ static long vmm_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
         printk(KERN_DEBUG "VMM_INIT_VMX end...\n");
         ret = 0;
     }
+    break;
     case VMM_FINALIZE_VMX:
     {
         printk(KERN_DEBUG "VMM_INIT_VMX start...\n");
