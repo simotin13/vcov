@@ -6,11 +6,6 @@
 
 #define VMX_PAGE_SIZE	(4096)
 
-#define VMCS_ENCODE_COMPONENT( access, type, width, index )    ( unsigned )( ( unsigned short )( access ) | \
-                                                                        ( ( unsigned short )( index ) << 1 ) | \
-                                                                        ( ( unsigned short )( type ) << 10 ) | \
-                                                                        ( ( unsigned short )( width ) << 13 ) )
-
 #define VMCS_ACCESS_FULL						(0)
 #define VMCS_ACCESS_HIGH						(1)
 
@@ -22,8 +17,14 @@
 #define VMCS_FIELD_WIDTH_16BIT					(0)
 #define VMCS_FIELD_WIDTH_64BIT					(1)
 #define VMCS_FIELD_WIDTH_32BIT					(2)
+#define VMCS_FIELD_WIDTH_NATURAL				(3)
 
-#define VMCS_ENCODE_COMPONENT_FULL( type, width, index )    VMCS_ENCODE_COMPONENT( VMCS_ACCESS_FULL, type, width, index )
+#define VMCS_ENCODE_COMPONENT( access, type, width, index )     ( access ) | \
+                                                                        ( ( unsigned short )( index ) << 1 ) | \
+                                                                        ( ( unsigned short )( type ) << 10 ) | \
+                                                                        ( ( unsigned short )( width ) << 13 )
+
+#define VMCS_ENCODE_COMPONENT_FULL( type, width, index )    VMCS_ENCODE_COMPONENT( 0, type, width, index )
 #define VMCS_ENCODE_COMPONENT_FULL_16( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_16BIT, index )
 #define VMCS_ENCODE_COMPONENT_FULL_32( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_32BIT, index )
 #define VMCS_ENCODE_COMPONENT_FULL_64( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_64BIT, index )
@@ -245,7 +246,15 @@ static int vmptrld(u64 address)
 	return error;
 }
 
-static int write_vmcs_field(unsigned long field, unsigned long value)
+#if 0
+static uint64_t read_vmcs_field(uint32_t field)
+{
+	uint64_t sel = field;
+	return _vmread(sel);
+}
+#endif
+
+static int write_vmcs_field(uint32_t field, uint32_t value)
 {
 	uint64_t sel = field;
 	uint64_t val = value;
@@ -254,8 +263,14 @@ static int write_vmcs_field(unsigned long field, unsigned long value)
 
 static int setup_vmcs(void)
 {
-	uint64_t reg;
+	unsigned long cr0 = _read_cr0();
+	unsigned long cr3 = _read_cr3();
+	unsigned long cr4 = _read_cr4();
+	write_vmcs_field(GUEST_CR0, cr0);
+	write_vmcs_field(GUEST_CR3, cr3);
+	write_vmcs_field(GUEST_CR4, cr4);
 
+#if 0
 	reg = _get_reg_es();
 	write_vmcs_field(GUEST_ES_SELECTOR, reg);
 
@@ -273,6 +288,7 @@ static int setup_vmcs(void)
 
 	reg = _get_reg_gs();
 	write_vmcs_field(GUEST_GS_SELECTOR, reg);
+#endif
 
 	return 0;
 }

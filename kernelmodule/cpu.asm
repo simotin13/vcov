@@ -8,6 +8,7 @@ global _vmread
 global _enable_vmxe
 global _disable_vmxe
 global _read_cr0
+global _read_cr3
 global _read_cr4
 global _write_cr4
 global _write_cr0
@@ -63,6 +64,10 @@ _vmx_success:
 ; =============================================================================
 _read_cr0:
     mov rax, cr0
+    ret
+
+_read_cr3:
+    mov rax, cr3
     ret
 
 _read_cr4:
