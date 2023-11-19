@@ -23,6 +23,8 @@ extern uint64_t _get_reg_gs(void);
 extern unsigned long _read_cr0(void);
 extern unsigned long _read_cr3(void);
 extern unsigned long _read_cr4(void);
+extern unsigned long _read_dr7(void);
+
 extern void _write_cr0(unsigned int);
 extern void _write_cr4(unsigned int);
 

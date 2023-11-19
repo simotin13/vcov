@@ -17,6 +17,8 @@ global _read_msr_low
 global _read_msr_high
 global _write_msr
 
+global _read_dr7
+
 global _get_reg_rax
 global _get_reg_rbx
 global _get_reg_cs
@@ -131,6 +133,10 @@ _write_msr:
     and rax, rbx
     wrmsr
     pop rcx
+    ret
+
+_read_dr7:
+    mov rax, dr7
     ret
 
 _get_reg_rax:

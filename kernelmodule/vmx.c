@@ -190,6 +190,13 @@ struct vmcs {
 struct vmcs *vmxon_region;
 struct vmcs *vmcs_region;
 
+typedef struct vcpu {
+	uint64_t guest_rsp;
+	uint64_t guest_rip;
+} VCPU;
+
+static VCPU vcpu;
+
 #if 0
 static u64 read_cr4(void)
 {
@@ -261,14 +268,20 @@ static int write_vmcs_field(uint32_t field, uint32_t value)
 	return _vmwrite(sel, val);
 }
 
-static int setup_vmcs(void)
+static int setup_vmcs(VCPU *vcpu)
 {
 	unsigned long cr0 = _read_cr0();
 	unsigned long cr3 = _read_cr3();
 	unsigned long cr4 = _read_cr4();
+	unsigned long dr7 = _read_dr7();
+
 	write_vmcs_field(GUEST_CR0, cr0);
 	write_vmcs_field(GUEST_CR3, cr3);
 	write_vmcs_field(GUEST_CR4, cr4);
+	write_vmcs_field(GUEST_DR7, dr7);
+
+	write_vmcs_field( GUEST_RSP, vcpu->guest_rsp);
+	write_vmcs_field( GUEST_RIP, vcpu->guest_rip);
 
 #if 0
 	reg = _get_reg_es();
@@ -362,7 +375,8 @@ int init_vmx(void)
         return -1;
     }
 
-	setup_vmcs();
+	// TODO
+	setup_vmcs(&vcpu);
 
 	// TODO 要確認
 #if 0
