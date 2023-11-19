@@ -6,6 +6,28 @@
 
 #define VMX_PAGE_SIZE	(4096)
 
+#define VMCS_ENCODE_COMPONENT( access, type, width, index )    ( unsigned )( ( unsigned short )( access ) | \
+                                                                        ( ( unsigned short )( index ) << 1 ) | \
+                                                                        ( ( unsigned short )( type ) << 10 ) | \
+                                                                        ( ( unsigned short )( width ) << 13 ) )
+
+#define VMCS_ACCESS_FULL						(0)
+#define VMCS_ACCESS_HIGH						(1)
+
+#define VMCS_FIELD_TYPE_CONTROL					(0)
+#define VMCS_FIELD_TYPE_VM_EXIT					(1)
+#define VMCS_FIELD_TYPE_GUEST_STATE				(2)
+#define VMCS_FIELD_TYPE_HOST_STATE				(3)
+
+#define VMCS_FIELD_WIDTH_16BIT					(0)
+#define VMCS_FIELD_WIDTH_64BIT					(1)
+#define VMCS_FIELD_WIDTH_32BIT					(2)
+
+#define VMCS_ENCODE_COMPONENT_FULL( type, width, index )    VMCS_ENCODE_COMPONENT( VMCS_ACCESS_FULL, type, width, index )
+#define VMCS_ENCODE_COMPONENT_FULL_16( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_16BIT, index )
+#define VMCS_ENCODE_COMPONENT_FULL_32( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_32BIT, index )
+#define VMCS_ENCODE_COMPONENT_FULL_64( type, index )        VMCS_ENCODE_COMPONENT_FULL( type, VMCS_FIELD_WIDTH_64BIT, index )
+
 enum vmcs_field {
 	VIRTUAL_PROCESSOR_ID            = 0x00000000,
 	GUEST_ES_SELECTOR               = 0x00000800,
