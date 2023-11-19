@@ -18,6 +18,7 @@ global _read_msr_high
 global _write_msr
 
 global _read_dr7
+global _read_rflag
 
 global _get_reg_rax
 global _get_reg_rbx
@@ -28,6 +29,7 @@ global _get_reg_ss
 global _get_reg_fs
 global _get_reg_gs
 global _get_reg_tr
+
 
 _vmxon:
     vmxon [rdi]
@@ -169,3 +171,7 @@ _get_reg_fs:
 _get_reg_gs:
     mov rax, gs
     ret
+
+_read_rflag:
+    pushfq
+    pop rax

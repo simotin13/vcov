@@ -261,12 +261,18 @@ static uint64_t read_vmcs_field(uint32_t field)
 }
 #endif
 
-static int write_vmcs_field(uint32_t field, uint32_t value)
+static int write_vmcs_field(uint32_t field, uint64_t value)
 {
 	uint64_t sel = field;
-	uint64_t val = value;
-	return _vmwrite(sel, val);
+	return _vmwrite(sel, value);
 }
+
+#define IA32_DEBUGCTL					(0x01d9)
+#define IA32_SYSENTER_CS				(0x0174)
+#define IA32_SYSENTER_ESP				(0x0175)
+#define IA32_SYSENTER_EIP				(0x0176)
+#define IA32_FS_BASE				(0xC0000100)
+#define IA32_GS_BASE				(0xc0000101)
 
 static int setup_vmcs(VCPU *vcpu)
 {
@@ -274,14 +280,23 @@ static int setup_vmcs(VCPU *vcpu)
 	unsigned long cr3 = _read_cr3();
 	unsigned long cr4 = _read_cr4();
 	unsigned long dr7 = _read_dr7();
+	uint64_t rflag = _read_rflag();
 
 	write_vmcs_field(GUEST_CR0, cr0);
 	write_vmcs_field(GUEST_CR3, cr3);
 	write_vmcs_field(GUEST_CR4, cr4);
 	write_vmcs_field(GUEST_DR7, dr7);
 
-	write_vmcs_field( GUEST_RSP, vcpu->guest_rsp);
-	write_vmcs_field( GUEST_RIP, vcpu->guest_rip);
+	write_vmcs_field(GUEST_RSP, vcpu->guest_rsp);
+	write_vmcs_field(GUEST_RIP, vcpu->guest_rip);
+	write_vmcs_field(GUEST_RFLAGS, rflag);
+	write_vmcs_field(GUEST_IA32_DEBUGCTL, _read_msr(IA32_DEBUGCTL));
+	write_vmcs_field(GUEST_SYSENTER_ESP, _read_msr(IA32_SYSENTER_ESP));
+	write_vmcs_field(GUEST_SYSENTER_EIP, _read_msr(IA32_SYSENTER_EIP));
+	write_vmcs_field(GUEST_SYSENTER_CS, _read_msr(IA32_SYSENTER_CS));
+	write_vmcs_field(VMCS_LINK_POINTER, 0xFFFFFFFFFFFFFFFF);
+	write_vmcs_field(GUEST_FS_BASE, _read_msr(IA32_FS_BASE));
+	write_vmcs_field(GUEST_GS_BASE, _read_msr(IA32_GS_BASE));
 
 #if 0
 	reg = _get_reg_es();

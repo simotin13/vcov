@@ -20,17 +20,18 @@ extern uint64_t _get_reg_ss(void);
 extern uint64_t _get_reg_fs(void);
 extern uint64_t _get_reg_gs(void);
 
-extern unsigned long _read_cr0(void);
-extern unsigned long _read_cr3(void);
-extern unsigned long _read_cr4(void);
-extern unsigned long _read_dr7(void);
+extern uint32_t _read_cr0(void);
+extern uint32_t _read_cr3(void);
+extern uint32_t _read_cr4(void);
+extern uint32_t _read_dr7(void);
+extern uint64_t _read_rflag(void);
 
 extern void _write_cr0(unsigned int);
 extern void _write_cr4(unsigned int);
 
-extern unsigned long _read_msr_low(unsigned int);
-extern unsigned long _read_msr_high(unsigned int);
-extern unsigned long long _read_msr(unsigned int);
-extern unsigned long _write_msr(unsigned int, uint64_t val);
+extern uint32_t _read_msr_low(unsigned int);
+extern uint32_t _read_msr_high(unsigned int);
+extern uint64_t _read_msr(unsigned int);
+extern uint32_t _write_msr(unsigned int, uint64_t val);
 
 #endif	// _CPU_H_
